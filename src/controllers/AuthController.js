@@ -7,7 +7,7 @@ const router = express.Router();
 router.post("/register", async (req, res) => {
   const { email } = req.body;
 
-  if (await UserModel.findOneAndDelete({ email })) {
+  if (await UserModel.findOne({ email })) {
     return res.status(400).json({
       error: true,
       message: "User already exists",
@@ -19,10 +19,26 @@ router.post("/register", async (req, res) => {
   User.password = undefined;
 
   return res.json({
+
     error: false,
-    message: "Registred with success!",
+    message: "Registered with success!",
     data: User,
   });
 });
+
+router.post('/authenticate', async (req, res) => {
+  const {email, password} = req.body;
+
+  const user = await UserModel.findOne({email}).select("+password");
+
+  if(!user) {
+    return res.status(400).json({
+      error: 'true',
+      message: 'User not found'
+    })
+  }
+
+  return res.json(user)
+})
 
 module.exports = router;
